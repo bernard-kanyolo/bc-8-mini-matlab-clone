@@ -1,3 +1,6 @@
+from numpy.linalg import inv
+
+
 class Matrix(object):
     """Class for modelling the basic operations of a Matrix.
     """
@@ -51,7 +54,7 @@ class Matrix(object):
     def scalar_translate(self, f):
         """general purpose scalar operations
         takes a function and applies it to every element in the matrix.
-        returns the matrix in the end
+        returns the new matrix
         """
         new = [[f(c) for c in self.data[i]] for i, r in enumerate(self.data)]
         return Matrix(new)
@@ -68,4 +71,33 @@ class Matrix(object):
         transposed = [list(items) for items in zip(*self.data)]
         return Matrix(transposed)
 
-print ((Matrix([[1,2,3], [4,5,6]]) + 3).transpose())
+    def inverse(self):
+        """takes a matrix and returns its inverse, if the matrix is square
+        """
+        if self.cols == self.rows:
+            return Matrix(inv(self.data))
+        else:
+            raise ValueError("Cannot invert a non-square matrix")
+
+    def concat_horizontal(self, matrix):
+        """concatenates the matrices horizontally together as long as
+        they have the same number of rows
+        """
+        if self.rows == matrix.rows:
+            new = [row + matrix.data[i] for i, row in enumerate(self.data)]
+            return Matrix(new)
+        else:
+            raise ValueError("Matrices must have same number of rows")
+
+    def concat_vertical(self, matrix):
+        """concatenates the matrices vertically together as long as
+        they have the same number of columns
+        """
+        if self.cols == matrix.cols:
+            new = self.data + matrix.data
+            return Matrix(new)
+        else:
+            raise ValueError("Matrices must have same number of columns")
+
+print(Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+      .concat_vertical(Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])))
