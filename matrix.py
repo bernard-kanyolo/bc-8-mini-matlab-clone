@@ -47,3 +47,25 @@ class Matrix(object):
 
         data = [[1 for c in range(cols)] for r in range(rows)]
         return cls(data)
+
+    def scalar_translate(self, f):
+        """general purpose scalar operations
+        takes a function and applies it to every element in the matrix.
+        returns the matrix in the end
+        """
+        new = [[f(c) for c in self.data[i]] for i, r in enumerate(self.data)]
+        return Matrix(new)
+
+    def __str__(self):
+        return str(self.data)
+
+    def __add__(self, number):
+        return self.scalar_translate(lambda x: x + number)
+
+    def transpose(self):
+        """takes a matrix and returns its transpose, ie. rows and columns switched
+        """
+        transposed = [list(items) for items in zip(*self.data)]
+        return Matrix(transposed)
+
+print ((Matrix([[1,2,3], [4,5,6]]) + 3).transpose())
