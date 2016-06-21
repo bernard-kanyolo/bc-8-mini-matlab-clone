@@ -3,7 +3,7 @@ class Matrix(object):
     """
 
     def __init__(self, data):
-        """initialize the matrix with nested list
+        """initialize the matrix with nested list or normal list
         """
         if len(data) > 0:
 
@@ -26,3 +26,24 @@ class Matrix(object):
         except IndexError:
             pass
 
+    @classmethod
+    def zeros(cls, rows, cols=None):
+        """creates a matrix with all zeros in the specified rows and columns
+        creates square matrix if column isn't specified
+        """
+        if cols is None:
+            cols = rows
+
+        data = [[0 for c in range(cols)] for r in range(rows)]
+        return cls(data)
+
+    @classmethod
+    def ones(cls, rows, cols=None):
+        """creates a matrix with all ones in the specified rows and columns
+        creates square matrix if column isn't specified
+        """
+        if cols is None:
+            cols = rows
+
+        data = [[1 for c in range(cols)] for r in range(rows)]
+        return cls(data)
