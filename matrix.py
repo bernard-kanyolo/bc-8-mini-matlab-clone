@@ -166,10 +166,17 @@ class Matrix(object):
         """
         return Matrix.__add__(self, other)
 
+    def __eq__(self, other):
+        """equality for matrix class"""
+        return self.data == other.data
+
 
 m1 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-m2 = Matrix([[1, 2, 3], [4, 15, 6], [7, 8, 9]])
+m2 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+to_invert = Matrix([[4, 3], [1, 1]])
+
+
 
 a1 = Matrix([[]])
 a2 = Matrix([[]])
-print(Matrix.sum(0,1,m1))
+
