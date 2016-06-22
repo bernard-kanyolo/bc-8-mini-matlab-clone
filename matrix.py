@@ -9,9 +9,11 @@ class Matrix(object):
         """initialize the matrix with nested list or normal list
         """
         if len(data) > 0:
-
+            # check if multi-dimensional
             if type(data[0]) == list:
-                if all(len(data[0]) == len(row) for row in data):
+                # check if all rows have same length
+                first_length = len(data[0])
+                if all(first_length == len(row) for row in data):
                     self.data = data
                 else:
                     raise ValueError("All rows must have the same length")
@@ -51,53 +53,123 @@ class Matrix(object):
         data = [[1 for c in range(cols)] for r in range(rows)]
         return cls(data)
 
-    def scalar_translate(self, f):
+    @staticmethod
+    def scalar_translate(func, matrix):
         """general purpose scalar operations
         takes a function and applies it to every element in the matrix.
         returns the new matrix
         """
-        new = [[f(c) for c in self.data[i]] for i, r in enumerate(self.data)]
+        new = [[func(value) for value in matrix.data[index]]
+               for index, row in enumerate(matrix.data)]
         return Matrix(new)
 
-    def __str__(self):
-        return str(self.data)
+    @staticmethod
+    def add(matrix1, matrix2):
+        """adds matrix2 to matrix1, then returns the new Matrix
+        matrices must have the same dimensions
+        """
+        if (matrix1.rows, matrix1.cols) == (matrix2.rows, matrix2.cols):
+            new = [[sum(value) for value in zip(*row)]
+                   for row in zip(matrix1.data, matrix2.data)]
+            return Matrix(new)
+        else:
+            raise ValueError("Matrix dimensions must agree")
 
-    def __add__(self, number):
-        return self.scalar_translate(lambda x: x + number)
+    @staticmethod
+    def sum(*matrices):
+        """takes any number of matrices (or ints/floats) and returns a matrix with
+        matrix1 + matrix2 + matrix3...
+        all matrices must have the same dimensions
+        """
+        # check for no parameters
+        if len(matrices) == 0:
+            return [[]]
 
-    def transpose(self):
+        first = matrices[0]
+        if type(first) == Matrix:
+            accumulator = Matrix.zeros(first.rows, first.cols)
+        else:
+            accumulator = 0
+
+        for matrix in matrices:
+            accumulator = accumulator + matrix
+        return accumulator
+
+    @staticmethod
+    def subtract(matrix1, matrix2):
+        """subtracts matrix2 from matrix1, then returns the new Matrix
+        matrices must have the same dimensions
+        """
+        if (matrix1.rows, matrix1.cols) == (matrix2.rows, matrix2.cols):
+            new = [[value[0] - sum(value[1:]) for value in zip(*row)]
+                   for row in zip(matrix1.data, matrix2.data)]
+            return Matrix(new)
+        else:
+            raise ValueError("Matrix dimensions must agree")
+
+    @staticmethod
+    def transpose(matrix):
         """takes a matrix and returns its transpose, ie. rows and columns switched
         """
-        transposed = [list(items) for items in zip(*self.data)]
+        transposed = [list(items) for items in zip(*matrix.data)]
         return Matrix(transposed)
 
-    def inverse(self):
+    @staticmethod
+    def inverse(matrix):
         """takes a matrix and returns its inverse, if the matrix is square
+        uses inv() function from numpy module
         """
-        if self.cols == self.rows:
-            return Matrix(inv(self.data))
+        if matrix.cols == matrix.rows:
+            return Matrix(inv(matrix.data))
         else:
             raise ValueError("Cannot invert a non-square matrix")
 
-    def concat_horizontal(self, matrix):
-        """concatenates the matrices horizontally together as long as
+    @staticmethod
+    def concat_horizontal(matrix1, matrix2):
+        """concatenates matrix2 to matrix1 horizontally together as long as
         they have the same number of rows
         """
-        if self.rows == matrix.rows:
-            new = [row + matrix.data[i] for i, row in enumerate(self.data)]
+        if matrix1.rows == matrix2.rows:
+            new = [row + matrix2.data[i] for i, row in enumerate(matrix1.data)]
             return Matrix(new)
         else:
             raise ValueError("Matrices must have same number of rows")
 
-    def concat_vertical(self, matrix):
-        """concatenates the matrices vertically together as long as
+    @staticmethod
+    def concat_vertical(matrix1, matrix2):
+        """concatenates matrix2 to matrix1 vertically together as long as
         they have the same number of columns
         """
-        if self.cols == matrix.cols:
-            new = self.data + matrix.data
+        if matrix1.cols == matrix2.cols:
+            new = matrix1.data + matrix2.data
             return Matrix(new)
         else:
             raise ValueError("Matrices must have same number of columns")
 
-print(Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-      .concat_vertical(Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])))
+    def __str__(self):
+        """return a string representation when printed or converted
+        """
+        return str(self.data)
+
+    def __add__(self, other):
+        """overload '+' operator for Matrix class
+        """
+        if type(other) == Matrix:
+            return Matrix.add(self, other)
+        elif type(other) == int or type(other) == float:
+            return Matrix.scalar_translate(lambda x: x + other, self)
+        else:
+            return ""
+
+    def __radd__(self, other):
+        """same as __add__ except supports reverse ordering
+        """
+        return Matrix.__add__(self, other)
+
+
+m1 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+m2 = Matrix([[1, 2, 3], [4, 15, 6], [7, 8, 9]])
+
+a1 = Matrix([[]])
+a2 = Matrix([[]])
+print(Matrix.sum(0,1,m1))
