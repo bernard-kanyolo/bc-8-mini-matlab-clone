@@ -23,7 +23,7 @@ class TestMatrixClass(unittest.TestCase):
         """
 
         self.assertListEqual(self.simple_matrix.data, [[1, 2]],
-                             msg="Matrix() should hold [1, 2]")
+                             msg="Matrix should hold [1, 2]")
 
     def test_create_matrix_with_list_of_list(self):
         """tests whether initializing the Matrix class with list of list
@@ -71,8 +71,8 @@ class TestMatrixClass(unittest.TestCase):
     def test_normal_add_matrices(self):
         """tests whether addition of matrices occurs as expected
         """
-        self.assertListEqual(Matrix.add(self.ones_two_by_two, self.ones_two_by_two).data,
-                             [[2, 2], [2, 2]])
+        self.assertListEqual(self.ones_two_by_two.add(
+                             self.ones_two_by_two).data, [[2, 2], [2, 2]])
 
     def test_different_matrix_dimensions(self):
         """tests whether addition of matrices with different dimensions raises error
@@ -89,27 +89,26 @@ class TestMatrixClass(unittest.TestCase):
     def test_normal_subtract_matrices(self):
         """tests whether subtraction of matrices occurs as expected
         """
-        self.assertListEqual(Matrix.subtract(
-                             self.ones_two_by_two, self.ones_two_by_two).data,
-                             [[0, 0], [0, 0]])
+        self.assertListEqual(self.ones_two_by_two.subtract(
+                             self.ones_two_by_two).data, [[0, 0], [0, 0]])
 
     def test_transpose_normal(self):
         """tests whether transpose works as expected
         """
-        self.assertListEqual(Matrix.transpose(self.simple_matrix).data, [
-                             [1], [2]], msg="transpose incorrect")
+        self.assertListEqual(self.simple_matrix.transpose().data,
+                             [[1], [2]], msg="transpose incorrect")
 
     def test_concat_horizontal(self):
         """tests combining matrices horizontally
         """
-        self.assertListEqual(Matrix.concat_horizontal(
-            self.simple_matrix, self.simple_matrix).data, [[1, 2, 1, 2]])
+        self.assertListEqual(self.simple_matrix.concat_horizontal(
+                             self.simple_matrix).data, [[1, 2, 1, 2]])
 
     def test_concat_vertical(self):
         """tests combining matrices vertically
         """
-        self.assertListEqual(Matrix.concat_vertical(
-            self.simple_matrix, self.simple_matrix).data, [[1, 2], [1, 2]])
+        self.assertListEqual(self.simple_matrix.concat_vertical(
+                             self.simple_matrix).data, [[1, 2], [1, 2]])
 
     def test_operator_overloading_plus(self):
         """tests use of '+' operator in addition of matrices
