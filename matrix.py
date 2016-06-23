@@ -6,23 +6,27 @@ class Matrix(object):
     """
 
     def __init__(self, data):
-        """initialize the matrix with nested list or normal list
+        """initialize the matrix with int/float, one-dimensional list
+        or two-dimensional list
         """
-        if len(data) > 0:
-            # check if multi-dimensional
-            if type(data[0]) == list:
-                # check if all rows have same length
-                first_length = len(data[0])
-                if all(first_length == len(row) for row in data):
-                    self.data = data
+        if type(data) == list:
+            if len(data) > 0:
+                # check if two-dimensional
+                if type(data[0]) == list:
+                    # check if all rows have the same length
+                    first_len = len(data[0])
+                    if all(first_len == len(row) for row in data):
+                        self.data = data
+                    else:
+                        raise ValueError("All rows must have the same length")
                 else:
-                    raise ValueError("All rows must have the same length")
+                    self.data = [data]
             else:
-                self.data = [data]
-
+                self.data = [[]]
+        elif type(data) == int or type(data) == float:
+            self.data = [[data]]
         else:
-            self.data = [[]]
-
+            raise ValueError("Incorrect datatype for Matrix")
         # set up row and col variables
         self.rows = len(self.data)
         self.cols = 0
@@ -70,8 +74,10 @@ class Matrix(object):
             new = [[sum(value) for value in zip(*row)]
                    for row in zip(self.data, matrix.data)]
             return Matrix(new)
+        elif (matrix.rows, matrix.cols) == (1, 1):
+            return self.scalar_translate(lambda x: x + matrix.data[0][0])
         else:
-            raise ValueError("Matrix dimensions must agree")
+            raise ValueError("Matrix dimensions must agree.")
 
     @staticmethod
     def sum(*matrices):
@@ -120,7 +126,7 @@ class Matrix(object):
             raise ValueError("Cannot invert a non-square matrix")
 
     def concat_horizontal(self, matrix):
-        """concatenates matrix to self horizontally together as long as
+        """concatenates matrix to self horizontally as long as
         they have the same number of rows
         """
         if self.rows == matrix.rows:
@@ -130,7 +136,7 @@ class Matrix(object):
             raise ValueError("Matrices must have same number of rows")
 
     def concat_vertical(self, matrix):
-        """concatenates matrix to self vertically together as long as
+        """concatenates matrix to self vertically as long as
         they have the same number of columns
         """
         if self.cols == matrix.cols:
@@ -142,17 +148,17 @@ class Matrix(object):
     def __str__(self):
         """return a string representation when printed or converted
         """
-        return str(self.data)
+        out = ""
+        for row in self.data:
+            out += " ".join(str(num) for num in row)
+            out += "\n"
+
+        return out
 
     def __add__(self, other):
         """overload '+' operator for Matrix class
         """
-        if type(other) == Matrix:
-            return Matrix.add(self, other)
-        elif type(other) == int or type(other) == float:
-            return self.scalar_translate(lambda x: x + other)
-        else:
-            return ""
+        return Matrix.add(self, other)
 
     def __radd__(self, other):
         """same as __add__ except supports reverse ordering
@@ -167,4 +173,4 @@ class Matrix(object):
 m1 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 m2 = Matrix([[1, 2, 3], [4, 10, 6], [7, 8, 9]])
 
-print(m2.concat_horizontal(m1).concat_horizontal(m2))
+print (m1)
