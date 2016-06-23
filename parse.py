@@ -11,8 +11,6 @@ def parse(expression, variables=None, concatenating=False):
     if variables:
         varis = tuple(variables.keys())
 
-    functions = ["inv(", "ones(", "zeros("]
-
     while(cursor < len(expression)):
         if expression[cursor].isdigit():
             digits, length = digits_consecutive(expression[cursor:])
@@ -54,11 +52,9 @@ def parse(expression, variables=None, concatenating=False):
                 raise ValueError("Incorrect syntax use of ';'")
         elif expression[cursor] == '+':
             if concatenating:
-                raise ValueError("Incorrect use of '+'")
+                raise ValueError("Incorrect syntax use of '+'")
             else:
                 cursor += 1
-        elif expression[cursor] == "'":
-            pass
         elif expression[cursor:].startswith("inv("):
             # function for inv()
             peek, length = peekExpression(expression[cursor + 4:], ')')
@@ -76,9 +72,28 @@ def parse(expression, variables=None, concatenating=False):
                     answer = peek_matrix
 
             cursor += length + 4
-        elif expression[cursor:] == '(':
-            peek, length = peekExpression(expression[cursor + 1:], ')')
-            peek_matrix = parse(peek, variables, concatenating)
+        elif expression[cursor:].startswith("zeros("):
+            # function for zeros(n,n) or zeros(n)
+            peek, length = peekExpression(expression[cursor + 6:], ')')
+            params = []
+            for s in peek.split(","):
+                params.append(s.strip())
+
+            if len(params) == 2:
+                try:
+                    row = int(params[0])
+                    col = int(params[1])
+                except ValueError:
+                    raise ValueError("Invalid int supplied for zeros()")
+
+            elif len(params) == 1:
+                try:
+                    row = int(params[0])
+                    col = None
+                except ValueError:
+                    raise ValueError("Invalid int supplied for zeros()")
+
+            peek_matrix = Matrix.zeros(row, col)
             if concatenating:
                 if answer:
                     answer = answer.concat_horizontal(peek_matrix)
@@ -90,7 +105,62 @@ def parse(expression, variables=None, concatenating=False):
                 else:
                     answer = peek_matrix
 
-            cursor += length + 1
+            cursor += length + 6
+        elif expression[cursor:].startswith("ones("):
+            # function for ones(n,n) or ones(n)
+            peek, length = peekExpression(expression[cursor + 5:], ')')
+            params = []
+            for s in peek.split(","):
+                params.append(s.strip())
+
+            if len(params) == 2:
+                try:
+                    row = int(params[0])
+                    col = int(params[1])
+                except ValueError:
+                    raise ValueError("Invalid int supplied for ones()")
+
+            elif len(params) == 1:
+                try:
+                    row = int(params[0])
+                    col = None
+                except ValueError:
+                    raise ValueError("Invalid int supplied for ones()")
+
+            peek_matrix = Matrix.ones(row, col)
+            if concatenating:
+                if answer:
+                    answer = answer.concat_horizontal(peek_matrix)
+                else:
+                    answer = peek_matrix
+            else:
+                if answer:
+                    answer = answer + peek_matrix
+                else:
+                    answer = peek_matrix
+
+            cursor += length + 5
+        elif expression[cursor] == '(':
+            peek, length = peekExpression(expression[cursor + 1:], ')')
+            peek_matrix = parse(peek, variables)
+
+            cursor += length + 2
+            if cursor < len(expression):
+                if expression[cursor] == "'":
+                    peek_matrix = peek_matrix.transpose()
+                    cursor += 1
+
+            if concatenating:
+                if answer:
+                    answer = answer.concat_horizontal(peek_matrix)
+                else:
+                    answer = peek_matrix
+            else:
+                if answer:
+                    answer = answer + peek_matrix
+                else:
+                    answer = peek_matrix
+
         elif expression[cursor] == ')':
             cursor += 1
         elif expression[cursor:].startswith(varis):
@@ -99,17 +169,25 @@ def parse(expression, variables=None, concatenating=False):
                 if expression[cursor:].startswith(v):
                     length = len(v)
                     peek_matrix = variables[v]
-                    if concatenating:
-                        if answer:
-                            answer = answer.concat_horizontal(peek_matrix)
-                        else:
-                            answer = peek_matrix
-                    else:
-                        if answer:
-                            answer = answer + peek_matrix
-                        else:
-                            answer = peek_matrix
+                    break
+
             cursor += length
+
+            if cursor < len(expression):
+                if expression[cursor] == "'":
+                    peek_matrix = peek_matrix.transpose()
+                    cursor += 1
+
+            if concatenating:
+                if answer:
+                    answer = answer.concat_horizontal(peek_matrix)
+                else:
+                    answer = peek_matrix
+            else:
+                if answer:
+                    answer = answer + peek_matrix
+                else:
+                    answer = peek_matrix
 
         else:
             raise ValueError("Incorrect syntax")
@@ -150,6 +228,3 @@ def digits_consecutive(text):
         return (int(nums), end)
     except:
         return (float(nums), end)
-
-test_dict = {"a": Matrix([[1, 2], [3, 4]]), "b": Matrix([[1, 1], [1, 1]])}
-print(parse("a + 1", test_dict, concatenating=False))
