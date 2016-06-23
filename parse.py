@@ -7,8 +7,11 @@ def parse(expression, variables=None, concatenating=False):
     """
     answer = None
     cursor = 0
+    varis = ()
+    if variables:
+        varis = tuple(variables.keys())
 
-    functions = ["inv", "ones", "zeros"]
+    functions = ["inv(", "ones(", "zeros("]
 
     while(cursor < len(expression)):
         if expression[cursor].isdigit():
@@ -20,7 +23,7 @@ def parse(expression, variables=None, concatenating=False):
                     answer = Matrix(digits)
             else:
                 if answer:
-                    answer = answer + digits
+                    answer = answer + Matrix(digits)
                 else:
                     answer = Matrix(digits)
             cursor += length
@@ -39,27 +42,75 @@ def parse(expression, variables=None, concatenating=False):
             if concatenating:
                 cursor += 1
             else:
-                raise ValueError("Unexpected white space")
+                cursor += 1
+                #raise ValueError("Unexpected white space")
         elif expression[cursor] == ';':
             if concatenating:
                 peek, length = peekExpression(expression[cursor + 1:], ';]')
-                peek_matrix = parse(expression=peek, concatenating=True)
+                peek_matrix = parse(peek, variables, concatenating=True)
                 answer = answer.concat_vertical(peek_matrix)
                 cursor += length + 1
             else:
                 raise ValueError("Incorrect syntax use of ';'")
         elif expression[cursor] == '+':
             if concatenating:
-                cursor += 1
+                raise ValueError("Incorrect use of '+'")
             else:
-                raise ValueError("Incorrect syntax")
+                cursor += 1
         elif expression[cursor] == "'":
             pass
-        elif expression[cursor].isalpha():
-            # is a word character, need to check variables and keywords
-            pass
-        elif expression[cursor] == '(':
-            pass
+        elif expression[cursor:].startswith("inv("):
+            # function for inv()
+            peek, length = peekExpression(expression[cursor + 4:], ')')
+            peek_matrix = parse(peek, variables).inverse()
+
+            if concatenating:
+                if answer:
+                    answer = answer.concat_horizontal(peek_matrix)
+                else:
+                    answer = peek_matrix
+            else:
+                if answer:
+                    answer = answer + peek_matrix
+                else:
+                    answer = peek_matrix
+
+            cursor += length + 4
+        elif expression[cursor:] == '(':
+            peek, length = peekExpression(expression[cursor + 1:], ')')
+            peek_matrix = parse(peek, variables, concatenating)
+            if concatenating:
+                if answer:
+                    answer = answer.concat_horizontal(peek_matrix)
+                else:
+                    answer = peek_matrix
+            else:
+                if answer:
+                    answer = answer + peek_matrix
+                else:
+                    answer = peek_matrix
+
+            cursor += length + 1
+        elif expression[cursor] == ')':
+            cursor += 1
+        elif expression[cursor:].startswith(varis):
+            length = 1
+            for v in varis:
+                if expression[cursor:].startswith(v):
+                    length = len(v)
+                    peek_matrix = variables[v]
+                    if concatenating:
+                        if answer:
+                            answer = answer.concat_horizontal(peek_matrix)
+                        else:
+                            answer = peek_matrix
+                    else:
+                        if answer:
+                            answer = answer + peek_matrix
+                        else:
+                            answer = peek_matrix
+            cursor += length
+
         else:
             raise ValueError("Incorrect syntax")
 
@@ -100,5 +151,5 @@ def digits_consecutive(text):
     except:
         return (float(nums), end)
 
-
-print(parse("[1;2;3;4;5;6;7;8;9]"))
+test_dict = {"a": Matrix([[1, 2], [3, 4]]), "b": Matrix([[1, 1], [1, 1]])}
+print(parse("a + 1", test_dict, concatenating=False))

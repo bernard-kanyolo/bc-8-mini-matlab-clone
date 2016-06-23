@@ -121,7 +121,7 @@ class Matrix(object):
         uses inv() function from numpy module
         """
         if self.cols == self.rows:
-            return Matrix(inv(self.data))
+            return Matrix(inv(self.data).tolist())
         else:
             raise ValueError("Cannot invert a non-square matrix")
 
@@ -173,4 +173,3 @@ class Matrix(object):
 m1 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 m2 = Matrix([[1, 2, 3], [4, 10, 6], [7, 8, 9]])
 
-print (m1)
