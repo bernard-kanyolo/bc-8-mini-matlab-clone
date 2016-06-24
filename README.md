@@ -23,7 +23,7 @@ f = ones(2)
   a + 1
   a + b
   ```
-  * Transpose (using "'"):
+  * Transpose (using '):
   ```MATLAB
   a'
   ```
@@ -51,4 +51,19 @@ load < workspace.mat
 * View current workspace variables:
 ```MATLAB
 workspace
+```
+
+* Installation
+```
+  Clone this repository
+  Navigate into the directory
+  [optional] create a virtual environment
+  run "pip install -r requirements.txt"
+  run "python app.py"
+```
+
+* Tested on
+```
+  Python 2.7
+  Python 3.5
 ```
