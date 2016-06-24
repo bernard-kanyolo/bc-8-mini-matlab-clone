@@ -8,6 +8,8 @@ class TestMatrixClass(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
+        cls.int_matrix = Matrix(1)
+        cls.int_matrix_ones = Matrix.ones(1)
         cls.simple_matrix = Matrix([1, 2])
         cls.nested_matrix = Matrix([[1, 2], [3, 4]])
         cls.empty_matrix = Matrix([])
@@ -16,6 +18,14 @@ class TestMatrixClass(unittest.TestCase):
         cls.ones_two_by_one = Matrix.ones(2, 1)
         cls.ones_two_by_two = Matrix.ones(2)
         cls.to_invert = Matrix([[4, 3], [1, 1]])
+
+    def test_create_matrix_with_int(self):
+        """test whether creation of matrix with int is correct
+        """
+        self.assertListEqual(self.int_matrix.data, [[1]],
+                             msg="Matrix(1) should create 1-by-1 matrix")
+        self.assertListEqual(self.int_matrix.data, self.int_matrix_ones.data,
+                             msg="Matrix(1) should create 1-by-1 matrix")
 
     def test_create_matrix_with_array(self):
         """test whether initializing the Matrix class
@@ -114,7 +124,7 @@ class TestMatrixClass(unittest.TestCase):
         """tests use of '+' operator in addition of matrices
         """
         self.assertListEqual(
-            (self.ones_two_by_two + 1 + self.ones_two_by_two).data, [[3, 3], [3, 3]])
+            (self.ones_two_by_two + self.ones_two_by_two).data, [[2, 2], [2, 2]])
 
 
 if __name__ == '__main__':
