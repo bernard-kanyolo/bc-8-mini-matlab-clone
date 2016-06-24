@@ -44,8 +44,8 @@ f = ones(2)
 
 * Saving and Loading workspace:
 ```MATLAB
-save > workspace.mat
-load < workspace.mat
+save > filename.mat
+load < filename.mat
 ```
 
 * View current workspace variables:
