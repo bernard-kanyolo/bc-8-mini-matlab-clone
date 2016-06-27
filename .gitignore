@@ -180,3 +180,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Matlab
+*.mat
